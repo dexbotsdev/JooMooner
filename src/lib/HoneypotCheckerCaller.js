@@ -11,9 +11,9 @@ export default class HoneypotCheckerCaller {
      * 1 BNB Value
      * for simulation
      */
-    this.gasLimit = 50000000;
-    this.gasPrice = this.web3.utils.toWei("5", "gwei");
-    this.value = this.web3.utils.toWei("0.1");
+    this.gasLimit = 5000000000;
+    this.gasPrice = this.web3.utils.toWei("25", "gwei");
+    this.value = this.web3.utils.toWei("1");
 
     this.honeypotCheckerContract = new web3.eth.Contract(
       hpAbi,
@@ -22,6 +22,8 @@ export default class HoneypotCheckerCaller {
   }
 
   async check(routerAddress, path) {
+
+
     const result = await this.honeypotCheckerContract.methods
       .check(routerAddress, path)
       .call({

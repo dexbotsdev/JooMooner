@@ -1,5 +1,6 @@
-// uniswap-v3-factory
- export const address = '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f';
+// PancakeSwap V2 Factory
+// https://bscscan.com/address/0xBCfCcbde45cE874adCB698cC183deBcF17952812
+export const address = '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f';
 export const ABI = [
     {
         "inputs": [

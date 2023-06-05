@@ -75,7 +75,7 @@ try{
         {
             logger.info('Source Unverified stay Away from    '+tokenSymbol);  
          } else {
-            ishp = checkforHoneyPot(src.data.result); 
+            ishp = await checkforHoneyPot(src.data.result); 
             tokenNotVerified=false;
          }
 
