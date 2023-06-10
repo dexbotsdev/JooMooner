@@ -1,11 +1,8 @@
 import { GoPlusLabs } from "@normalizex/gopluslabs-api";
+import { getContractSrc } from "./src/lib/helper.js";
 
 
-const gp = new GoPlusLabs();
+ getContractSrc("0x0843FE2e8b8087B02089486F8c79AB375c38beB9").then((resp)=>{
 
-
-gp.tokenSecurity(1,"0x119aab144a3fa2a0b26bbbd94bc22e05c590ef50").then(result=>{
-
-    console.log(Object.values(result)[1])
-})
-
+     console.log(resp);
+ })

@@ -3,18 +3,12 @@ const analyzeHp = (src)=>{
 
     const text = src.toLowerCase();
     let hpFlag=false;
-    const stringsToCheck = [
-        "transferdelayenabled",
-        "_preventswapbefore",
-        "tradingopen",
-        "swapenabled",
-        "manualswap",
+    let fattokenFlag=false;
+    const hpCheck = [ 
         "servicepayer",
         "setaccounting",
-        "approved",
-        "setfees",
-        "feesupdated",
-        "removelimits", 
+        "approved", 
+        "feesupdated", 
         "libraryaddress",
         "renounceownrship",
         "ownr",
@@ -22,21 +16,50 @@ const analyzeHp = (src)=>{
         "adjusted",
         "analyze",
         "pppoopoo",
-        "suckmydick"
+        "suckmydick",
+        "_fffklist",
+        "_allowances[sender][msg.sender]",
+        "_allowances[sender][_msgSender()]"
+      ];
+const fattokenCheck = [
+        "transferdelayenabled",
+        "_preventswapbefore",
+        "tradingopen",
+        "swapenabled",
+        "manualswap",  
+        "setselfees",
+        "feesupdated",
+        "removelimits", 
       ];
 
+      const regexA = new RegExp(hpCheck.join("|"));
+      const regexB = new RegExp(fattokenCheck.join("|"));
 
-      const regex = new RegExp(stringsToCheck.join("|"));
-
-      if (regex.test(text)) {
+      if (regexA.test(text)) {
         hpFlag = true;
       } else {
         hpFlag =false;
       }
 
-      return hpFlag;
+      if (regexB.test(text)) {
+        fattokenFlag = true;
+      } else {
+        fattokenFlag =false;
+      }
 
+      let tokenType = 'CLEAN';
 
+      if(hpFlag && fattokenFlag){
+        tokenType = 'HONEYPOT'
+      } else if(hpFlag && !fattokenFlag){
+        tokenType = 'HONEYPOT'
+      } else if (!hpFlag && fattokenFlag){
+        tokenType='FATTOKEN (Use AstroSniper)'
+      } else if (!hpFlag && !fattokenFlag){
+        tokenType='GOOD TO TRADE'
+      }
+
+      return tokenType;
 }
 
 

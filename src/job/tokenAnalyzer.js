@@ -23,7 +23,8 @@ const mainInterval = setInterval(() => {
 
     const query = new Parse.Query(TokenTracker);
     query.equalTo("track", true);
-    query.limit(300);
+    query.addDescending("pairCreated");
+    query.limit(10);
     query.find().then((resp => {
         const trackedTokens = resp;
         console.log("Successfully retrieved " + trackedTokens.length + " Tokens.");
@@ -33,52 +34,9 @@ const mainInterval = setInterval(() => {
             pairData(object.pairAddress).then((pair) => {
 
                  const tokenTracked = object;
-                 let announced=false;
+          
 
-                 if(!tokenTracked.discord){
-
-                    getRenounceStatus(tokenTracked.tokenAddress).then((flag)=>{
-                        
-                        try{
-                            const pairduration = ((new Date().getTime() - tokenTracked.pairCreatedAt)/60000).toFixed(2)
-
-                            const embed = new MessageBuilder()
-                            .setTitle('BlinkoMooner Found - New Launch -'+ tokenTracked.tokenName)
-                            .setAuthor('Blinko', 'https://avatars.githubusercontent.com/u/33565557?v=4', 'https://www.google.com')
-                            .setURL('https://etherscan.io/token/'+tokenTracked.tokenAddress)
-                            .addField('Token Name', ''+tokenTracked.tokenName, true)
-                            .addField('Token Renounced', flag?' YES ': ' POSSIBLE RUGPULL BEWARE', true) 
-                            .addField('Liquidity ', ''+tokenTracked.ethLiquidity, true)
-                            .addField('MarketCap ', ''+pair?.fdv, true)
-                            .addField('Source Verified', ''+tokenTracked.tokenVerified ?'YES':'NO', true)
-                            .addField('Token Price(usd)', ''+pair?.priceUsd, true)
-                            .addField('Token Volume', ''+pair?.volume?.h1, true) 
-                            .addField('Launched Before', ''+pairduration +' mins', true) 
-                            .addField('CA', ''+tokenTracked.tokenAddress, true) 
-                            .addField('DEX', ''+ "[DEX](https://dexscreener.com/ethereum/"+tokenTracked.pairAddress+")", true) 
-                            .setColor('#00b0f4') 
-                            .setDescription('Do Not Overtrade and greedy, close the trade if no volume for more than 2 minutes.')
-                            .setTimestamp(); 
-                            announced=true;
-                            logger.info('Sending Message ')
-                            hook.send(embed); 
-                            var query = new Parse.Query(TokenTracker);
-                            query.equalTo("pairAddress", tokenTracked.pairAddress);
-            
-                            query.find().then((results) => {
-                                console.log('Updating discord')
-                                results[0].set("discord", true); 
-                                results[0].save();
-                            }).catch((error) => {
-                                console.log("Error: " + error.code + " " + error.message);
-                            });
-                        }catch(err){
-                            console.log('error here')
-                        }
-
-                    })
-
-                 }
+             
 
                 if (tokenTracked.currVolume === 'undefined') {
                     tokenTracked.currVolume = 0;
@@ -95,10 +53,7 @@ const mainInterval = setInterval(() => {
                     console.log('Updating values')
                     results[0].set("currVolume", '' + pair?.volume?.h24);
                     results[0].set("currPrice", '' + pair?.priceUsd);
-                    results[0].set("currmarketcap", '' + pair?.fdv);
-
-                    if(announced)
-                    results[0].set("discord", true);
+                    results[0].set("currmarketcap", '' + pair?.fdv); 
 
 
                     if (pair?.liquidity?.usd < 10 || Number(pair?.fdv) < 10) {

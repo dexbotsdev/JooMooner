@@ -11,6 +11,7 @@ import { addresses,checkETHPaired,checkforHoneyPot,isTokenNotVerified,getContrac
 import logger from '../lib/logger.js';
 import HoneypotCheckerCaller from '../lib/HoneypotCheckerCaller.js';
 import honeypotChecker from '../job/HoneyPot.js';
+import isWalletBlockerFound from '../lib/WalletBlocker.js';
 
 const provider = new providers.WebSocketProvider("wss://eth-mainnet.nodereal.io/ws/v1/c39cf5b992844862a28cf386f68d310e")
  const web3 = new Web3(addresses.RPC);  
@@ -70,17 +71,20 @@ try{
             let ethDecimals = await ethContract.decimals();
 
             let src = await getContractSrc(targetToken);
-            let hp = true; 
+            let hp = false; 
+            let walletblocker=false;
             let tokenVerified = false;
             let blacklisted = false;
-            if(src === null || src.data.result[0].ABI === 'Contract source code not verified' )
+            if(!src.status)
             {
                 logger.info('Source Unverified stay Away from    '+tokenSymbol);  
              } else {
-                  hp  = analyzeHp(src.data.result[0].SourceCode);
+                  hp  = analyzeHp(src.SourceCode);
                  if(hp)
-                  blacklisted = await isBlacklisted(src.data.result[0].SourceCode,src.data.result[0].ContractName,hp);
+                  blacklisted = await isBlacklisted(src.SourceCode,src.ContractName,hp);
                   tokenVerified=true; 
+
+                  walletblocker = isWalletBlockerFound(src.SourceCode)
                  
              }
 
@@ -92,7 +96,7 @@ try{
             const tokenLiquidity = await tokenContract.balanceOf(pairAddr);
             const burntLiquidity = await tokenContract.balanceOf("0x000000000000000000000000000000000000dEaD");
 
-            logger.info('Finding Total Supply  '+tokenSymbol);  
+            logger.info('Finding Total Supply  '+tokenLiquidity.toString());  
             const totalSupply = await tokenContract.totalSupply();
 
             let liqShare=0;
@@ -102,9 +106,9 @@ try{
              
 
             let result='OK';
-            let status=  !hp && tokenVerified &&  !blacklisted;
+            let status=   tokenVerified;
 
-            logger.info('Token is Tradeable?? (Not HP and Src Verified and Not Scam and Not Blacklisted )  '+status);  
+            logger.info('Token is Verified  '+src.status);  
 
 
             if(Number(utils.formatUnits(ethLiquidity,ethDecimals))>0){
@@ -116,7 +120,8 @@ try{
                       logger.docs('Token Symbol     :',tokenSymbol); 
                       logger.docs('Token ETH LIQ    :',Number(utils.formatUnits(ethLiquidity,ethDecimals))); 
                       logger.warning('Token Liq Share  :'+Number(liqShare).toFixed(2)+'  %'); 
-                      
+                      logger.docs('Token is HoneyPot  :',hp);    
+
                       const cleanToken = {
                         tokenAddress: targetToken,
                         tokenName: tokenName,
@@ -132,7 +137,7 @@ try{
                         pairAddress:pairAddr, 
                         tokenVerified: tokenVerified,
                         ishp: hp,
-                        owner:owner
+                        owner:owner, 
 
                       } 
                       eventEmitter.emit('newtoken',cleanToken);
@@ -146,7 +151,6 @@ try{
                 logger.docs('Token Name         :',tokenName);
                 logger.docs('Token Symbol       :',tokenSymbol);
                 logger.docs('Token is Verified  :',tokenVerified);  
-                logger.docs('Token is HoneyPot  :',hp);    
                 logger.docs('Token ETH LIQ    :',Number(utils.formatUnits(ethLiquidity,ethDecimals)));
 
              }

@@ -60,9 +60,9 @@ export const getContractCreator = async(tokenAddress)=>{
 
        let blacklist = data ? JSON.parse(data): null;    
 
-       console.log('Checking blacklist ') 
+       console.log('Checking blacklist For ContractName '+ name) 
        console.log(blacklist.indexOf(name)); 
-     if(!tradeAble){
+     if(tradeAble==='HONEYPOT'){
        if(blacklist=== undefined || blacklist === null){
          blacklist = [name];
          isBlackList=true;
@@ -91,10 +91,18 @@ export const getContractCreator = async(tokenAddress)=>{
     
     const contractdata= await axios
     .get(`https://api.etherscan.io/api?module=contract&action=getsourcecode&address=${tokenAddress}&apikey=UHC6JGAPVA9FJIG7X9PFTZAX94JVFIE285`)
-    .then(res=>res)
-    .catch(error=>null);
+     
 
-    return contractdata;
+    const data =JSON.stringify(contractdata.data.result);
+    console.log(data.indexOf('pragma solidity'));
+    const result = {
+      status:Number(data.indexOf('pragma solidity'))>0,
+      SourceCode: Number(data.indexOf('pragma solidity'))>0 ? contractdata.data.result[0].SourceCode:'',
+      ContractName: Number(data.indexOf('pragma solidity'))>0 ? contractdata.data.result[0].ContractName:'',
+    }
+
+
+    return result;
   }
   
   export const isQuoteToken=(tokenAddress)=>{
