@@ -1,33 +1,19 @@
 import { BigNumber, Contract,  providers,utils  } from 'ethers';
-import * as BEP20 from '../contract/BEP20/bep20.js';
 import * as UniswapFactory from '../contract/uniswap-v3-factory/factory.js'
-import hpAbi from '../contract/honeypotChecker.js'
 import { ERC20ABI } from '../abis/index.js';
 import analyzeHp from '../lib/SourceAnalyzer.js';
  
-import Web3 from 'web3';
-import { addresses,checkETHPaired,checkforHoneyPot,isTokenNotVerified,getContractSrc,isQuoteToken, checkforFeesUpdate, isBlacklisted, checkforHoneyPot2 } from '../lib/helper.js'; 
+import { checkETHPaired,getContractSrc,isQuoteToken, isBlacklisted } from '../lib/helper.js'; 
  
 import logger from '../lib/logger.js';
-import HoneypotCheckerCaller from '../lib/HoneypotCheckerCaller.js';
-import honeypotChecker from '../job/HoneyPot.js';
 import isWalletBlockerFound from '../lib/WalletBlocker.js';
 
 const provider = new providers.WebSocketProvider("wss://eth-mainnet.nodereal.io/ws/v1/c39cf5b992844862a28cf386f68d310e")
- const web3 = new Web3(addresses.RPC);  
 const contractUniswapFactory = new Contract(
     UniswapFactory.address,
     UniswapFactory.ABI,
     provider
 ); 
-const honeypotCheckerCaller = new HoneypotCheckerCaller(
-    web3,
-    addresses.HONEYPOT_CHECKER_ADDRESS
-  )
-const honeypotCheckerContract = new web3.eth.Contract(
-    hpAbi,
-    addresses.HONEYPOT_CHECKER_ADDRESS
-  );
 
 const main=(eventEmitter)=>{
     logger.docs("                             ")
@@ -94,7 +80,6 @@ try{
 
             const ethLiquidity = await ethContract.balanceOf(pairAddr);
             const tokenLiquidity = await tokenContract.balanceOf(pairAddr);
-            const burntLiquidity = await tokenContract.balanceOf("0x000000000000000000000000000000000000dEaD");
 
             logger.info('Finding Total Supply  '+tokenLiquidity.toString());  
             const totalSupply = await tokenContract.totalSupply();
@@ -105,7 +90,6 @@ try{
              }catch(error){}
              
 
-            let result='OK';
             let status=   tokenVerified;
 
             logger.info('Token is Verified  '+src.status);  
