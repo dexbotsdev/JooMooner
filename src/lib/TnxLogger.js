@@ -23,10 +23,8 @@ const wallet = new  Wallet('0x5cd071930fe1eafa08c0156f9b22a7042544f2dcd20b21988d
 
  
  
- 
- 
-provider.on("pending", (tx) => {
-    //console.log(i++ +":" + tx);
+ const tx='0xc5a5325d92c8950567bfc00762470a0ad94c166ee9ebaeab44446dde8d37bb5d'
+  
     provider.getTransaction(tx).then(async function (transaction) {
  
       ///  console.log(transaction.from ==='0xae2Fc483527B8EF99EB5D9B44875F005ba1FaE13')
@@ -35,26 +33,17 @@ provider.on("pending", (tx) => {
           const gasPrice = web3.utils.fromWei(transaction.gasPrice.toString())
           const gasLimit = web3.utils.fromWei(transaction.gasLimit.toString())
   
-              const result = abiDecoder.decodeMethod(transaction.data);
-                 
-                if (result && result.name) {
+          console.log("value : ", value);
+          console.log("gasPrice : ", gasPrice);
+          console.log("gasLimit : ", gasLimit);
+          console.log("from", transaction.from);
+          console.log("to", transaction.to);
+           
+            console.log(transaction)
 
-                    if(result.name==='removeLiquidityETHWithPermit')
-                         {
-                          console.log("value : ", value);
-                          console.log("gasPrice : ", gasPrice);
-                          console.log("gasLimit : ", gasLimit);
-                          console.log("from", transaction.from);
-                          console.log("to", transaction.to);
-                          console.log(result)
-
-                    }
-                    
-                }  
-             
+            process.exit(0)
         }
-    })
-}) 
+    }) 
 
 /*
 let options = {
